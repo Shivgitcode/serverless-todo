@@ -3,7 +3,7 @@ import { Context } from "hono";
 import postgres from "postgres"
 import { user } from "../drizzle/schema";
 import bcrypt from "bcryptjs"
-import { eq, jaccardDistance } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { sign } from "hono/jwt";
 import { setCookie } from "hono/cookie";
 

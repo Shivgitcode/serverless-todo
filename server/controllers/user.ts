@@ -1,4 +1,4 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/vercel-postgres";
 import { Context } from "hono";
 import postgres from "postgres"
 import { user } from "../drizzle/schema";
@@ -6,10 +6,10 @@ import bcrypt from "bcryptjs"
 import { eq } from "drizzle-orm";
 import { sign } from "hono/jwt";
 import { setCookie } from "hono/cookie";
+import { sql } from "@vercel/postgres";
 
 export const createUser = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const body = await c.req.json()
     const hashPass = await bcrypt.hash(body.password, 12)
     const newUser = await db.insert(user).values({
@@ -26,8 +26,7 @@ export const createUser = async (c: Context) => {
 }
 
 export const loginUser = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const body = await c.req.json();
     const findUser = await db.select().from(user).where(eq(user.username, body.username))
     if (!findUser[0]) {

@@ -7,7 +7,7 @@ export default defineConfig({
     schema: "drizzle/schema.ts",
     out: "drizzle/migrations",
     dbCredentials: {
-        url: process.env.DB_URL as string
+        url: process.env.POSTGRES_URL as string
     },
     verbose: true,
     strict: true

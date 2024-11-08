@@ -1,14 +1,14 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/vercel-postgres";
 import { Context } from "hono";
 import postgres from "postgres";
 import { todos } from "../drizzle/schema";
 import { getCookie } from "hono/cookie";
 import { decode } from "hono/jwt";
 import { eq } from "drizzle-orm";
+import { sql } from "@vercel/postgres"
 
 export const createTodo = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const token = getCookie(c, "jwt");
     const { header, payload } = decode(token as string)
     const body = await c.req.json();
@@ -27,8 +27,7 @@ export const createTodo = async (c: Context) => {
 }
 
 export const getAllTodos = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const token = getCookie(c, "jwt");
     const { header, payload } = decode(token as string)
     const getAllTodos = await db.select().from(todos).where(eq(todos.userId, payload.id as string))
@@ -41,8 +40,7 @@ export const getAllTodos = async (c: Context) => {
 }
 
 export const deleteTodo = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const { id } = c.req.param()
     const deleteTodo = await db.delete(todos).where(eq(todos.id, id)).returning({
         todo: todos.name
@@ -57,8 +55,7 @@ export const deleteTodo = async (c: Context) => {
 }
 
 export const updateTodo = async (c: Context) => {
-    const client = postgres(c.env.DB_URL, { max: 1 })
-    const db = drizzle(client, { logger: true })
+    const db = drizzle({ client: sql })
     const { id } = c.req.param();
     const body = await c.req.json()
     const updateTodo = await db.update(todos).set({ ...body }).where(eq(todos.id, id)).returning({
